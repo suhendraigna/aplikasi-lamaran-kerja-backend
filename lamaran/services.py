@@ -1,6 +1,7 @@
 from common.exceptions import DomainException
 from lamaran.models import Lamaran
 from lamaran.constants import StatusLamaran
+from lamaran.error_codes import ErrorLamaran
 
 
 class LayananLamaran:
@@ -15,7 +16,10 @@ class LayananLamaran:
 
         #1. Validasi lowongan aktif
         if not lowongan.aktif:
-            raise DomainException("Lowongan sudah ditutup.")
+            raise DomainException(
+                    ErrorLamaran.LOWONGAN_TUTUP,
+                    "Lowongan sudah ditutup."
+                                  )
         
 
         #2. Validasi belum pernah melamar
@@ -25,7 +29,10 @@ class LayananLamaran:
         ).exists()
 
         if sudah_ada:
-            raise DomainException("Pelamar sudah pernah melamar lowongan ini.")
+            raise DomainException(
+                    ErrorLamaran.DUPLIKAT_LAMARAN,
+                    "Pelamar sudah pernah melamar lowongan ini."
+                    )
         
         
         #3. Buat lamaran baru
@@ -40,10 +47,16 @@ class LayananLamaran:
 
     def proses_lamaran(self, lamaran, perusahaan):
         if lamaran.lowongan.perusahaan != perusahaan:
-            raise DomainException("Perusahaan tidak berhak memproses lamaran ini.")
+            raise DomainException(
+                    ErrorLamaran.TIDAK_BERHAK,
+                    "Perusahaan tidak berhak memproses lamaran ini."
+                    )
         
         if lamaran.status != StatusLamaran.DIKIRIM:
-            raise DomainException("Lamaran tidak bisa diproses.")
+            raise DomainException(
+                    ErrorLamaran.STATUS_TIDAK_VALID,
+                    "Lamaran tidak bisa diproses."
+                    )
         
         lamaran.status = StatusLamaran.DIPROSES
         lamaran.save()
@@ -51,13 +64,22 @@ class LayananLamaran:
     
     def putuskan_lamaran(self, lamaran, perusahaan, keputusan):
         if lamaran.lowongan.perusahaan != perusahaan:
-            raise DomainException("Perusahaan tidak berhak memproses lamaran ini.")
+            raise DomainException(
+                    ErrorLamaran.TIDAK_BERHAK,
+                    "Perusahaan tidak berhak memproses lamaran ini."
+                    )
         
         if lamaran.status != StatusLamaran.DIPROSES:
-            raise DomainException("Lamaran belum diproses.")
+            raise DomainException(
+                    ErrorLamaran.STATUS_TIDAK_VALID,
+                    "Lamaran belum diproses."
+                    )
         
         if keputusan not in ["DITERIMA", "DITOLAK"]:
-            raise DomainException("Keputusan lamaran tidak valid.")
+            raise DomainException(
+                    ErrorLamaran.KEPUTUSAN_TIDAK_VALID,
+                    "Keputusan lamaran tidak valid."
+                    )
         
         lamaran.status = keputusan
         lamaran.save()

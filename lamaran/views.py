@@ -13,7 +13,7 @@ from pelamar.models import Pelamar
 from lowongan.models import Lowongan
 from perusahaan.models import Perusahaan
 from lamaran.models import Lamaran
-
+from lamaran.error_codes import ErrorLamaran
 
 
 class AjukanLamaranAPIView(APIView):
@@ -37,7 +37,11 @@ class AjukanLamaranAPIView(APIView):
             )
         except DomainException as e:
             return Response(
-                {"error": str(e)},
+                {"error":{ 
+                    "kode": e.kode,
+                    "pesan": e.pesan
+                          }
+                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -70,7 +74,11 @@ class ProsesLamaranAPIView(APIView):
             )
         except DomainException as e:
             return Response(
-                {"error": str(e)},
+                {"error": {
+                    "kode": e.kode,
+                    "pesan": e.pesan
+                    }
+                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -104,7 +112,11 @@ class PutuskanLamaranAPIView(APIView):
             )
         except DomainException as e:
             return Response(
-                {"error": str(e)},
+                {"error": {
+                    "kode": e.kode,
+                    "pesan": e.pesan
+                    }
+                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
         

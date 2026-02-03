@@ -10,6 +10,7 @@ from lamaran.models import Lamaran
 from lamaran.services import LayananLamaran
 from lamaran.constants import StatusLamaran
 from common.exceptions import DomainException
+from lamaran.error_codes import ErrorLamaran
 
 
 
@@ -203,10 +204,7 @@ class AjukanLamaranAPITest(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.data["error"],
-            "Lowongan sudah ditutup."
-        )
+        self.assertEqual(response.data["error"]["kode"],ErrorLamaran.LOWONGAN_TUTUP)
 
         self.assertEqual(Lamaran.objects.count(), 0)
 
@@ -227,10 +225,7 @@ class AjukanLamaranAPITest(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.data["error"],
-            "Pelamar sudah pernah melamar lowongan ini."
-        )
+        self.assertEqual(response.data["error"]["kode"],ErrorLamaran.DUPLIKAT_LAMARAN)
         self.assertEqual(Lamaran.objects.count(), 1)
 
 
