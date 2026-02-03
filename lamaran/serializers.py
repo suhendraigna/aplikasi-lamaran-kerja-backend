@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from lamaran.constants import StatusLamaran
 
 
 
@@ -14,5 +15,8 @@ class ProsesLamaranSerializer(serializers.Serializer):
 class PutuskanLamaranSerializer(serializers.Serializer):
     perusahaan_id = serializers.UUIDField()
     keputusan = serializers.ChoiceField(
-        choices=["DITERIMA", "DITOLAK"]
+        choices=[
+        StatusLamaran.DITERIMA,
+        StatusLamaran.DITOLAK
+            ]
     )

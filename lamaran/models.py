@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from pelamar.models import Pelamar
 from lowongan.models import Lowongan
-
+from lamaran.constants import StatusLamaran
 
 
 class Lamaran(models.Model):
@@ -23,7 +23,8 @@ class Lamaran(models.Model):
     )
 
     status = models.CharField(
-        max_length=20
+        max_length=20,
+        choices=StatusLamaran.PILIHAN
     )
 
     dibuat_pada = models.DateTimeField(

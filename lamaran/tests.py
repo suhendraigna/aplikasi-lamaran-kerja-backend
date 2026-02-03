@@ -8,6 +8,7 @@ from perusahaan.models import Perusahaan
 from lowongan.models import Lowongan
 from lamaran.models import Lamaran
 from lamaran.services import LayananLamaran
+from lamaran.constants import StatusLamaran
 from common.exceptions import DomainException
 
 
@@ -56,7 +57,7 @@ class LayananLamaranTest(TestCase):
         )
 
         self.assertIsInstance(lamaran, Lamaran)
-        self.assertEqual(lamaran.status, "DIKIRIM")
+        self.assertEqual(lamaran.status, StatusLamaran.DIKIRIM)
 
 
     def test_gagal_melamar_jika_lowongan_tidak_aktif(self):
@@ -78,7 +79,7 @@ class LayananLamaranTest(TestCase):
         Lamaran.objects.create(
             pelamar=self.pelamar,
             lowongan=self.lowongan,
-            status="DIKIRIM"
+            status=StatusLamaran.DIKIRIM
         )
 
         with self.assertRaises(DomainException) as konteks:
@@ -96,7 +97,7 @@ class LayananLamaranTest(TestCase):
         lamaran = Lamaran.objects.create(
             pelamar=self.pelamar,
             lowongan=self.lowongan,
-            status="DIKIRIM"
+            status=StatusLamaran.DIKIRIM
         )
 
         hasil = self.layanan.proses_lamaran(
@@ -104,13 +105,13 @@ class LayananLamaranTest(TestCase):
             perusahaan=self.perusahaan
         )
 
-        self.assertEqual(hasil.status, "DIPROSES")
+        self.assertEqual(hasil.status, StatusLamaran.DIPROSES)
 
     def test_lamaran_tidak_bisa_diproses_jika_status_salah(self):
         lamaran = Lamaran.objects.create(
             pelamar=self.pelamar,
             lowongan=self.lowongan,
-            status="DITERIMA"
+            status=StatusLamaran.DITERIMA
         )
 
         with self.assertRaises(DomainException):
@@ -123,16 +124,16 @@ class LayananLamaranTest(TestCase):
         lamaran = Lamaran.objects.create(
             pelamar=self.pelamar,
             lowongan=self.lowongan,
-            status="DIPROSES"
+            status=StatusLamaran.DIPROSES
         )
 
         hasil = self.layanan.putuskan_lamaran(
             lamaran=lamaran,
             perusahaan=self.perusahaan,
-            keputusan="DITERIMA"
+            keputusan=StatusLamaran.DITERIMA
         )
 
-        self.assertEqual(hasil.status, "DITERIMA")
+        self.assertEqual(hasil.status, StatusLamaran.DITERIMA)
 
 class AjukanLamaranAPITest(TestCase):
     
@@ -185,7 +186,7 @@ class AjukanLamaranAPITest(TestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertIn("id", response.data)
-        self.assertEqual(response.data["status"], "DIKIRIM")
+        self.assertEqual(response.data["status"], StatusLamaran.DIKIRIM)
         self.assertEqual(Lamaran.objects.count(), 1)
 
     def test_api_gagal_jika_lowongan_tidak_aktif(self):
@@ -213,7 +214,7 @@ class AjukanLamaranAPITest(TestCase):
         Lamaran.objects.create(
             pelamar=self.pelamar,
             lowongan=self.lowongan,
-            status="DIKIRIM"
+            status=StatusLamaran.DIKIRIM
         )
 
         response = self.client.post(
@@ -249,7 +250,7 @@ class AjukanLamaranAPITest(TestCase):
         lamaran = Lamaran.objects.create(
             pelamar=self.pelamar,
             lowongan=self.lowongan,
-            status="DIKIRIM"
+            status=StatusLamaran.DIKIRIM
         )
 
         response = self.client.post(
@@ -261,24 +262,24 @@ class AjukanLamaranAPITest(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["status"], "DIPROSES")
+        self.assertEqual(response.data["status"], StatusLamaran.DIPROSES)
 
     def test_api_perusahaan_menerima_lamaran(self):
         lamaran = Lamaran.objects.create(
             pelamar=self.pelamar,
             lowongan=self.lowongan,
-            status="DIPROSES"
+            status=StatusLamaran.DIPROSES
         )
 
         response = self.client.post(
             f"/api/lamaran/{lamaran.id}/putusan/",
             data={
                 "perusahaan_id": str(self.perusahaan.id),
-                "keputusan": "DITERIMA"
+                "keputusan": StatusLamaran.DITERIMA
             },
             format="json"
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["status"], "DITERIMA")
+        self.assertEqual(response.data["status"], StatusLamaran.DITERIMA)
 

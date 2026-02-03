@@ -1,6 +1,6 @@
 from common.exceptions import DomainException
 from lamaran.models import Lamaran
-
+from lamaran.constants import StatusLamaran
 
 
 class LayananLamaran:
@@ -32,7 +32,7 @@ class LayananLamaran:
         lamaran = Lamaran.objects.create(
             pelamar=pelamar,
             lowongan=lowongan,
-            status="DIKIRIM"
+            status=StatusLamaran.DIKIRIM
         )
 
         return lamaran
@@ -42,10 +42,10 @@ class LayananLamaran:
         if lamaran.lowongan.perusahaan != perusahaan:
             raise DomainException("Perusahaan tidak berhak memproses lamaran ini.")
         
-        if lamaran.status != "DIKIRIM":
+        if lamaran.status != StatusLamaran.DIKIRIM:
             raise DomainException("Lamaran tidak bisa diproses.")
         
-        lamaran.status = "DIPROSES"
+        lamaran.status = StatusLamaran.DIPROSES
         lamaran.save()
         return lamaran
     
@@ -53,7 +53,7 @@ class LayananLamaran:
         if lamaran.lowongan.perusahaan != perusahaan:
             raise DomainException("Perusahaan tidak berhak memproses lamaran ini.")
         
-        if lamaran.status != "DIPROSES":
+        if lamaran.status != StatusLamaran.DIPROSES:
             raise DomainException("Lamaran belum diproses.")
         
         if keputusan not in ["DITERIMA", "DITOLAK"]:
